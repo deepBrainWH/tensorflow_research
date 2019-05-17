@@ -3,8 +3,15 @@
 ### Example user template
 
 # IntelliJ project files
-.idea/
+.idea/0
+
 myexperiment/ssd*
+myexperiment/data/*.mp4
+myexperiment/string_int_label_map.proto
+
+
 venv/
 yolov3/*.pb
+yolov3/checkpoint/
+
 myexperiment/__pycache__
