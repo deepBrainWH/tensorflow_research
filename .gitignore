@@ -14,4 +14,5 @@ venv/
 yolov3/*.pb
 yolov3/checkpoint/
 
+test/
 myexperiment/__pycache__

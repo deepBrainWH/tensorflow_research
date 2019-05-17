@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # coding=utf-8
-#================================================================
+# ================================================================
 #   Copyright (C) 2018 * Ltd. All rights reserved.
 #
 #   Editor      : VIM
@@ -9,44 +9,44 @@
 #   Created date: 2018-11-30 15:56:37
 #   Description :
 #
-#================================================================
+# ================================================================
 
 import cv2
 import time
 import numpy as np
 import core.utils as utils
 import tensorflow as tf
-from PIL import Image
-
 
 return_elements = ["input/input_data:0", "pred_sbbox/concat_2:0", "pred_mbbox/concat_2:0", "pred_lbbox/concat_2:0"]
-pb_file         = "./yolov3_coco.pb"
+pb_file = "./yolov3_coco.pb"
 # video_path      = "./docs/images/road.mp4"
-video_path      = "/home/wangheng/workspace/PycharmProjects/tensorflow_research/myexperiment/data/01.mp4"
-num_classes     = 80
-input_size      = 416
-graph           = tf.Graph()
-return_tensors  = utils.read_pb_return_tensors(graph, pb_file, return_elements)
+video_path = "/home/wangheng/workspace/PycharmProjects/tensorflow_research/myexperiment/data/03.mp4"
+num_classes = 80
+input_size = 416
+graph = tf.Graph()
+return_tensors = utils.read_pb_return_tensors(graph, pb_file, return_elements)
 
 with tf.Session(graph=graph) as sess:
     vid = cv2.VideoCapture(video_path)
-    fourcc = cv2.VideoWriter_fourcc('M','P','E','G')
-    out = cv2.VideoWriter("/home/wangheng/workspace/PycharmProjects/tensorflow_research/myexperiment/data/01_output.avi", fourcc, 20.0, (640, 480))
+    fourcc = cv2.VideoWriter_fourcc('F', 'M', 'P', '4')
+    out = cv2.VideoWriter(
+        "/home/wangheng/workspace/PycharmProjects/tensorflow_research/myexperiment/data/03_output.avi",
+        fourcc, 20.0, (int(vid.get(3)), int(vid.get(4))))
     while True:
         return_value, frame = vid.read()
         if return_value:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            image = Image.fromarray(frame)
+            # image = Image.fromarray(frame)
         else:
             break
         frame_size = frame.shape[:2]
         image_data = utils.image_preporcess(np.copy(frame), [input_size, input_size])
         image_data = image_data[np.newaxis, ...]
         prev_time = time.time()
-#
+        #
         pred_sbbox, pred_mbbox, pred_lbbox = sess.run(
             [return_tensors[1], return_tensors[2], return_tensors[3]],
-                    feed_dict={ return_tensors[0]: image_data})
+            feed_dict={return_tensors[0]: image_data})
 
         pred_bbox = np.concatenate([np.reshape(pred_sbbox, (-1, 5 + num_classes)),
                                     np.reshape(pred_mbbox, (-1, 5 + num_classes)),
@@ -58,17 +58,12 @@ with tf.Session(graph=graph) as sess:
 
         curr_time = time.time()
         exec_time = curr_time - prev_time
-        result = np.asarray(image)
-        info = "time: %.2f ms" %(1000*exec_time)
+        info = "time: %.2f ms" % (1000 * exec_time)
         cv2.namedWindow("result", cv2.WINDOW_FREERATIO)
         result = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        out.write(cv2.flip(result,0))
+        out.write(result)
         cv2.imshow("result", result)
         if cv2.waitKey(1) & 0xFF == ord('q'): break
     vid.release()
     out.release()
     cv2.destroyAllWindows()
-
-
-
-

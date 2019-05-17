@@ -60,11 +60,13 @@ def image_preporcess(image, target_size, gt_boxes=None):
         return image_paded, gt_boxes
 
 
-def draw_bbox(image, bboxes, classes=read_class_names(cfg.YOLO.CLASSES), show_label=True):
+def draw_bbox(image, bboxes, classes=None, show_label=True):
     """
     bboxes: [x_min, y_min, x_max, y_max, cls_id] format coordinates.
     """
 
+    if classes is None:
+        classes = read_class_names(cfg.YOLO.CLASSES)
     num_classes = len(classes)
     image_h, image_w, _ = image.shape
     hsv_tuples = [(1.0 * x / num_classes, 1., 1.) for x in range(num_classes)]
